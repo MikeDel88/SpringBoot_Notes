@@ -1,3 +1,5 @@
+package com.notes.notes.config
+
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -15,6 +17,8 @@ class SecurityConfig {
             .authorizeHttpRequests {
                 it.anyRequest().permitAll()
             }
+            .httpBasic { } // important : évite le 401 automatique
+            .formLogin { it.disable() } // désactive login form si tu ne veux rien
             
         return http.build()
     }
