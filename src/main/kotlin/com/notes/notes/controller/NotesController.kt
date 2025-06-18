@@ -11,15 +11,33 @@ import com.notes.notes.repository.NotesRepository
 
 
 @RestController
-class NotesController(private val repository: NotesRepository) {
+@RequestMapping("/notes")
+class NotesController(private val service: NotesService) {
 
-    @GetMapping("/notes")
+    @GetMapping
     fun getNotes(): List<Note> {
-        return repository.findAll();
+        return service.getAll();
     }
 
-    @PostMapping("/notes")
+    @PostMapping
     fun setNotes(@RequestBody note: Note): Note? {
-        return repository.save(note)
+        return service.create(note)
+    }
+
+    @GetMapping("/{id}")
+    fun getNote(@PathVariable id: Long): ResponseEntity<Note> {
+        return service.getById()?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.notFound().build()
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteNote(@PathVariable id: Long): ResponseEntity<Void> {
+        return try {
+            service.deleteById(id)
+            ResponseEntity.noContent().build()
+        } catch(e: Exception) {
+            ResponseEntity.notFound().build()
+        }
     }
 }
