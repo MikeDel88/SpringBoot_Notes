@@ -26,7 +26,7 @@ class NotesController(private val service: NotesService) {
 
     @GetMapping("/{id}")
     fun getNote(@PathVariable id: Long): ResponseEntity<Note> {
-        return service.getById()?.let {
+        return service.getById(id)?.let {
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound().build()
     }
