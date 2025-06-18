@@ -13,5 +13,5 @@ class NotesService(private val repository: NotesRepository) {
 
     fun create(note: Note): Note = repository.save(note)
 
-    fun delete(id: Long) = repository.deleteById(id)
+    fun deleteById(id: Long) = repository.deleteById(id)
 }
