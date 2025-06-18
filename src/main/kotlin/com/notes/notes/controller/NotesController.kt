@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity
 
 // Import de ton modèle et repo
 import com.notes.notes.model.Note
-import com.notes.notes.repository.NotesRepository
+import com.notes.notes.service.NotesService
 
 
 @RestController
