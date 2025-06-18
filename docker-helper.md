@@ -15,3 +15,7 @@ sudo docker-compose up
 
 ### Ferme les containers ouverts
 sudo docker-compose down
+
+[launcher]
+- Build l'image de docker
+- Lancer le docker compose
