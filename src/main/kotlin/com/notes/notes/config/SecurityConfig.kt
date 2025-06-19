@@ -15,10 +15,13 @@ class SecurityConfig {
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.anyRequest().permitAll()
+                it
+                .requestMatchers("/auth/**").permitAll()
+                .anyRequest().authenticated()
             }
-            .httpBasic { } // important : évite le 401 automatique
             .formLogin { it.disable() } // désactive login form si tu ne veux rien
+            .and()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             
         return http.build()
     }
