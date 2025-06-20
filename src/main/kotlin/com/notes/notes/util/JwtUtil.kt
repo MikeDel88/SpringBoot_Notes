@@ -7,6 +7,11 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
 import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.Claims
+import java.util.Date
+import javax.crypto.SecretKey
+import org.springframework.web.server.ResponseStatusException
+import org.springframework.http.HttpStatusCode
 
 
 @Component
@@ -18,16 +23,47 @@ class JwtUtil(@Value("\${jwt.secret}") private val secret: String) {
     private val refreshTokenValidity = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
     fun generateToken(user: UserDetails, isRefresh: Boolean): String {
-        val now = System.currentTimeMillis()
-        val key = Keys.hmacShaKeyFor(secret.toByteArray())
         val validity = if(isRefresh) refreshTokenValidity else accessTokenValidity
+        val now = Date()
+        val expiryDate = Date(now.time + validity)
+        val type = if(isRefresh) "refresh" else "access"
 
         return Jwts.builder()
             .setSubject(user.username)
-            .setIssuedAt(Date(now))
-            .setExpiration(Date(now + validity))
+            .claim("type", type)
+            .setIssuedAt(now)
+            .setExpiration(expiryDate)
             .signWith(key, SignatureAlgorithm.HS256)
             .compact()
+    }
+
+    fun validateAccessToken(token: String): Boolean {
+        val claims = parseAllClaims(token) ?: return false
+        val tokenType = claims["type"] as? String ?: return false
+        return tokenType == "access"
+    }
+
+    fun getUserFromToken(token: String): String {
+        val claims = parseAllClaims(token) ?: throw ResponseStatusException(
+            HttpStatusCode.valueOf(401),
+            "Invalid token."
+        )
+        return claims.subject
+    }
+
+    private fun parseAllClaims(token: String): Claims? {
+        val rawToken = if(token.startsWith("Bearer ")) {
+            token.removePrefix("Bearer ")
+        } else token
+        return try {
+            Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(rawToken)
+                .body
+        } catch(e: Exception) {
+            null
+        }
     }
 
 }
