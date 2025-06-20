@@ -8,4 +8,5 @@ import com.notes.notes.model.User
 interface UsersRepository : JpaRepository<User, Long> {
     
     fun existsByEmail(email: String): Boolean
+    fun findByEmail(email: String): User?
 }
